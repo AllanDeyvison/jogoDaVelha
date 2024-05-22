@@ -4,29 +4,48 @@ def posicoesTabuleiro(tabuleiro):
 
     for i in range(altura):
         for n in range(largura):
-            print(f'{i * largura + n + 1}', end=' ')
+            if tabuleiro[i][n] == ' ':
+                print(f'{i * largura + n + 1}', end=' ')
+            else:
+                print(tabuleiro[i][n], end=' ')
         print()
+    # altura = len(tabuleiro)
+    # largura = len(tabuleiro[0]) if altura > 0 else 0
+
+    # for i in range(altura):
+    #     for n in range(largura):
+    #         print(f'{i * largura + n + 1}', end=' ')
+    #     print()
+    
+
+def coordenadas(numUnico, largura):
+    x = (numUnico - 1) // largura
+    y = (numUnico - 1) % largura
+    return x, y
 
 def jogada(posicao, tabuleiro, simbolo):
     try:
-        x, y = map(int, posicao.split())
-        if 1 <= x <= len(tabuleiro) and 1 <= y <= len(tabuleiro[0]):
-            tabuleiro[x-1][y-1] = simbolo
-            print(f"Jogada realizada em ({x}, {y})")
+        posicao = int(posicao)  # Converte a posição para inteiro
+        largura = len(tabuleiro[0])
+        x, y = coordenadas(posicao, largura)
+        
+        if 0 <= x < len(tabuleiro) and 0 <= y < len(tabuleiro[0]) and tabuleiro[x][y] == ' ':
+            tabuleiro[x][y] = simbolo
+            print(f"Jogada realizada em ({x + 1}, {y + 1})")
         else:
-            raise ValueError("Posição inválida.")
+            raise ValueError("Posição inválida ou já ocupada.")
     except ValueError as e:
         print(e)
 
 def ganhou(tabuleiro, jogador):
     if linha_igual(tabuleiro, jogador):
-        print(f"{jogador} ganhou!")
+        print(f"{nomes[jogador]} ganhou!")
         return True
     elif coluna_igual(tabuleiro, jogador):
-        print(f"{jogador} ganhou!")
+        print(f"{nomes[jogador]} ganhou!")
         return True
     elif diagonais_iguais(tabuleiro, jogador):
-        print(f"{jogador} ganhou!")
+        print(f"{nomes[jogador]} ganhou!")
         return True
     return False
 
@@ -46,20 +65,32 @@ def diagonais_iguais(tabuleiro, jogador):
     diagonal_principal = set(tabuleiro[i][i] for i in range(len(tabuleiro)))
     diagonal_secundaria = set(tabuleiro[i][len(tabuleiro)-i-1] for i in range(len(tabuleiro)))
 
-    if len(diagonal_principal) == 1 and diagonal_principal.pop() == jogador:
+    if len(diagonal_principal) == 1 and jogador in diagonal_principal:
         return True
-    if len(diagonal_secundaria) == 1 and diagonal_secundaria.pop() == jogador:
+    if len(diagonal_secundaria) == 1 and jogador in diagonal_secundaria:
         return True
     return False
 
 # Exemplo de uso
 tabuleiro = [[' ' for _ in range(3)] for _ in range(3)]
-print("Escolha o símbolo (X ou O): ", end="")
-simbolo = input().upper()
+
+
+jogadores = ["X", "O"]
+nomes = {}
+
+    # Obtém os nomes dos jogadores
+for jogador in jogadores:
+    nomes[jogador] = input(f"Digite o nome do jogador {jogador}: ")
+
+turno = 0
+
 while True:
     print("\nTabuleiro:")
     posicoesTabuleiro(tabuleiro)
-    print("\nDigite a posição da sua jogada (ex: 1 2): ", end="")
-    jogada(input(), tabuleiro, simbolo)
-    if ganhou(tabuleiro, simbolo):
+    jogador_atual = jogadores[turno % 2]
+    print(f"\nJogador {nomes[jogador_atual]} ({jogador_atual}) digite a posição da sua jogada (1-9): ", end="")
+    jogada(input(), tabuleiro, jogador_atual)
+    if ganhou(tabuleiro, jogador_atual):
         break
+
+    turno += 1
